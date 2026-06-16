@@ -24,7 +24,7 @@ USUARIO_SCHEMA = {
 }
 
 def test_get_usuario_com_sucesso():
-    ''Valida a busca de um usuário existente (ID 2)''
+    # Valida a busca de um usuário existente (ID 2)
     response = requests.get(f'{BASE_URL}/users/2')
     assert response.status_code == 200
     
@@ -33,12 +33,12 @@ def test_get_usuario_com_sucesso():
     assert dados['data']['id'] == 2
 
 def test_usuario_nao_encontrado():
-    ''Valida o status 404 para um usuário inexistente''
+    # Valida o status 404 para um usuário inexistente
     response = requests.get(f'{BASE_URL}/users/23')
     assert response.status_code == 404
 
 def test_criar_usuario():
-    ''Valida a criação de um novo usuário''
+    # Valida a criação de um novo usuário
     payload = {
         'name': 'Luan Tolosa',
         'job': 'QA Automation Engineer'
