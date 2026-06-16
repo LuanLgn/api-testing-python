@@ -1,8 +1,14 @@
 ﻿import requests
 import pytest
 from jsonschema import validate
+import os
 
 BASE_URL = 'https://reqres.in/api'
+
+# Garantir que variáveis de ambiente de proxy não interfiram
+os.environ['NO_PROXY'] = 'reqres.in'
+os.environ['http_proxy'] = ''
+os.environ['https_proxy'] = ''
 
 # Schema para validação de contrato do usuário
 USUARIO_SCHEMA = {
@@ -25,7 +31,9 @@ USUARIO_SCHEMA = {
 
 def test_get_usuario_com_sucesso():
     # Valida a busca de um usuário existente (ID 2)
-    response = requests.get(f'{BASE_URL}/users/2', proxies={})
+    session = requests.Session()
+    session.trust_env = False
+    response = session.get(f'{BASE_URL}/users/2')
     assert response.status_code == 200
     
     dados = response.json()
@@ -34,7 +42,9 @@ def test_get_usuario_com_sucesso():
 
 def test_usuario_nao_encontrado():
     # Valida o status 404 para um usuário inexistente
-    response = requests.get(f'{BASE_URL}/users/23', proxies={})
+    session = requests.Session()
+    session.trust_env = False
+    response = session.get(f'{BASE_URL}/users/23')
     assert response.status_code == 404
 
 def test_criar_usuario():
@@ -43,7 +53,9 @@ def test_criar_usuario():
         'name': 'Luan Tolosa',
         'job': 'QA Automation Engineer'
     }
-    response = requests.post(f'{BASE_URL}/users', json=payload, proxies={})
+    session = requests.Session()
+    session.trust_env = False
+    response = session.post(f'{BASE_URL}/users', json=payload)
     assert response.status_code == 201
     
     dados = response.json()
