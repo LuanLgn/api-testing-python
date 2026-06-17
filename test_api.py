@@ -1,64 +1,52 @@
 ﻿import requests
 import pytest
 from jsonschema import validate
-import os
 
-BASE_URL = 'https://reqres.in/api'
+BASE_URL = 'https://jsonplaceholder.typicode.com'
 
-# Garantir que variáveis de ambiente de proxy não interfiram
-os.environ['NO_PROXY'] = 'reqres.in'
-os.environ['http_proxy'] = ''
-os.environ['https_proxy'] = ''
-
-# Schema para validação de contrato do usuário
-USUARIO_SCHEMA = {
+# Schema para validação de contrato de Post
+POST_SCHEMA = {
     'type': 'object',
     'properties': {
-        'data': {
-            'type': 'object',
-            'properties': {
-                'id': {'type': 'number'},
-                'email': {'type': 'string'},
-                'first_name': {'type': 'string'},
-                'last_name': {'type': 'string'},
-                'avatar': {'type': 'string'}
-            },
-            'required': ['id', 'email', 'first_name', 'last_name']
-        }
+        'userId': {'type': 'number'},
+        'id': {'type': 'number'},
+        'title': {'type': 'string'},
+        'body': {'type': 'string'}
     },
-    'required': ['data']
+    'required': ['userId', 'id', 'title', 'body']
 }
 
-def test_get_usuario_com_sucesso():
-    # Valida a busca de um usuário existente (ID 2)
+def test_get_post_com_sucesso():
+    # Valida a busca de um post existente (ID 1)
     session = requests.Session()
     session.trust_env = False
-    response = session.get(f'{BASE_URL}/users/2')
+    response = session.get(f'{BASE_URL}/posts/1')
     assert response.status_code == 200
     
     dados = response.json()
-    validate(instance=dados, schema=USUARIO_SCHEMA)
-    assert dados['data']['id'] == 2
+    validate(instance=dados, schema=POST_SCHEMA)
+    assert dados['id'] == 1
 
-def test_usuario_nao_encontrado():
-    # Valida o status 404 para um usuário inexistente
+def test_post_nao_encontrado():
+    # Valida o status 404 para um post inexistente
     session = requests.Session()
     session.trust_env = False
-    response = session.get(f'{BASE_URL}/users/23')
+    response = session.get(f'{BASE_URL}/posts/999')
     assert response.status_code == 404
 
-def test_criar_usuario():
-    # Valida a criação de um novo usuário
+def test_criar_post():
+    # Valida a criação de um novo post
     payload = {
-        'name': 'Luan Tolosa',
-        'job': 'QA Automation Engineer'
+        'title': 'QA Automation',
+        'body': 'Testando com Python e Pytest',
+        'userId': 1
     }
     session = requests.Session()
     session.trust_env = False
-    response = session.post(f'{BASE_URL}/users', json=payload)
+    response = session.post(f'{BASE_URL}/posts', json=payload)
     assert response.status_code == 201
     
     dados = response.json()
-    assert dados['name'] == payload['name']
-    assert dados['job'] == payload['job']
+    assert dados['title'] == payload['title']
+    assert dados['userId'] == payload['userId']
     assert 'id' in dados
